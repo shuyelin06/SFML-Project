@@ -24,8 +24,8 @@ SRC := ./src
 # [Tab] action
 
 # Primary Target
-$(BIN)/main: $(OBJ)/main.o $(OBJ)/PhysicsObject.o
-	$(CC) $(CFLAGS) $(LFLAGS) -o $(BIN)/main.exe $(OBJ)/main.o $(OBJ)/PhysicsObject.o $(LIBS)
+$(BIN)/main: $(OBJ)/main.o $(OBJ)/PhysicsObject.o $(OBJ)/Vector.o
+	$(CC) $(CFLAGS) $(LFLAGS) -o $(BIN)/main.exe $(OBJ)/main.o $(OBJ)/PhysicsObject.o $(OBJ)/Vector.o $(LIBS)
 	./bin/main
 
 # Dependencies for main.o
@@ -36,10 +36,14 @@ $(OBJ)/main.o: $(SRC)/main.cpp
 $(OBJ)/PhysicsObject.o: $(SRC)/PhysicsObject.cpp
 	$(CC) $(CFLAGS) $(INCLUDE) -c $(SRC)/PhysicsObject.cpp -o $(OBJ)/PhysicsObject.o
 
+# Dependencies for Vector
+$(OBJ)/Vector.o: $(SRC)/Vector.cpp
+	$(CC) $(CFLAGS) $(INCLUDE) -c $(SRC)/Vector.cpp -o $(OBJ)/Vector.o
+
 # No dependencies; * is a wildcard (ALL of some file)
 .PHONY: clean run
 clean:
-	rm $(BIN)/main
 	rm $(OBJ)/*.o
+	rm $(BIN)/main
 run:
 	$(BIN)/main.exe

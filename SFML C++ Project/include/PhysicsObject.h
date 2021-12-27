@@ -1,5 +1,7 @@
 #pragma once 
 
+#include "Vector.h"
+
 // PhysicsObject Class Declaration
 class PhysicsObject {
     public: // Constructors
@@ -28,26 +30,42 @@ class PhysicsObject {
         float mass, inertia;
     
     public: // Class Methods
-        // Update: Main Method
-        void update();
+        void update(); // Update the Object
+        bool intersects(PhysicsObject &o); // Check for Intersections
+        void collision(PhysicsObject &o);
 
         // Accessor Methods
         float getX();
         float getY();
-
         float getTheta();
+        
+        float getXVelocity();
+        float getYVelocity();
 
         float getWidth();
         float getHeight();
         
+        Vector* getCorners();
+
         // Mutator Methods
-        void setWidth(float width1);
-        void setHeight(float height1);
-        
+        void setX(float x1);
+        void setY(float y1);
+
         void setXVelocity(float newVelocity);
         void setYVelocity(float newVelocity);
 
         void addTorque(float torque);
         void addXForce(float xForce);
         void addYForce(float yForce);
+
+        void setWidth(float width1);
+        void setHeight(float height1);        
 };
+
+namespace ObjectHelperMethods {
+    Vector* getAxes(PhysicsObject &p);
+    Vector* getCorners(Vector* axes, float centerX, float centerY);
+
+    bool withinAxis(float proj1, float proj2);
+    bool checkProjections(Vector* originAxes, Vector* originCorners, Vector* otherAxes, Vector* otherCorners);
+}

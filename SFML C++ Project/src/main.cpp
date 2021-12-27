@@ -1,33 +1,34 @@
 #include <SFML/Graphics.hpp>
-#include <math.h>
 
+#include <vector>
+
+#include "Constants.hpp"
 #include "PhysicsObject.h"
-
-
-float distance(float x1, float y1, float x2, float y2) {
-    return sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2));
-}
+#include <iostream>
 
 int main()
 {
     // Render Main Window
-    sf::RenderWindow window(sf::VideoMode(750, 750), "SFML Project");
-    window.setFramerateLimit(60); // Capping FPS
+    sf::RenderWindow window(
+        sf::VideoMode(RenderConstants::Resolution_X, RenderConstants::Resolution_Y), 
+        "SFML Project"
+    );
+    window.setFramerateLimit(RenderConstants::Frames_Per_Second); // Capping FPS
+
+    std::vector<PhysicsObject> objects = {};
 
     // New Physics Object
-    float centerX = window.getSize().x / 2;
-    float centerY = window.getSize().y / 2;
+    PhysicsObject newObject(1.f, 1.f, 2.f, 1.5f, 2.f, 1.f, 1.f);
+    newObject.setYVelocity(7.f);
+    objects.push_back(newObject);
 
-    PhysicsObject newObject;
+    PhysicsObject newObject2(1.f, 10.f, 5.f, 4.f, 2.f, 1.f, 1.f);
+    newObject2.setYVelocity(-1.f);
+    objects.push_back(newObject2);
 
-    newObject.setYVelocity(-5.f);
-
-    newObject.setWidth(50.f);
-    newObject.setHeight(75.f);
-
-    sf::RectangleShape rectangle;
-    rectangle.setSize(sf::Vector2f(newObject.getWidth(), newObject.getHeight()));
-    rectangle.setFillColor(sf::Color::White);
+    PhysicsObject newObject3(1.f, 30.f, 6.f, 1.5f, 2.f, 1.f, 1.f);
+    newObject3.setYVelocity(-10.f);
+    objects.push_back(newObject3);
 
     while (window.isOpen())
     {
@@ -39,17 +40,38 @@ int main()
                 window.close();
         }
 
-        float theta = atan2(centerY - newObject.getY(), centerX - newObject.getX());
-        float magnitude = distance(newObject.getX(), newObject.getY(), centerX, centerY) / 750;
+        // Object Updating
+        for(auto& o: objects) { o.update(); }
+        
+        // Collision Checking
+        for(std::size_t i = 0; i < objects.size() - 1; i++) {
+            PhysicsObject& o1 = objects[i];
 
-        newObject.addXForce(magnitude * cos(theta));
-        newObject.addYForce(magnitude * sin(theta));
+            for(std::size_t j = i + 1; j < objects.size(); j++) {
+                PhysicsObject& o2 = objects[j];
 
-        newObject.update();
-        rectangle.setPosition(newObject.getX(), newObject.getY());
+                if(o1.intersects(o2)) {
+                    o1.collision(o2);
+                }
+            }
+        }
 
-        window.clear();
-        window.draw(rectangle);
+        // Rendering
+        window.clear(sf::Color::Black);
+        for(std::size_t i = 0; i < objects.size(); i++) {
+            Vector* corners = objects[i].getCorners();
+
+            sf::VertexArray lines(sf::LinesStrip, 5);      
+            for(int j = 0; j < 5; j++) {
+                lines[j] = sf::Vector2f(
+                    corners[j % 4].x * RenderConstants::Pixels_Per_Meter, 
+                    RenderConstants::Resolution_Y - corners[j % 4].y * RenderConstants::Pixels_Per_Meter
+                    );
+            }
+
+            window.draw(lines);
+            delete[] corners;
+        }
         window.display();
     }
 
